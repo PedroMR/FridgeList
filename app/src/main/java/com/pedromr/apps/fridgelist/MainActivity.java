@@ -1,21 +1,20 @@
 package com.pedromr.apps.fridgelist;
 
-import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Camera;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -25,23 +24,37 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
-    private static final int MY_REQUEST_CODE = 191;
+    private static final String PREF_FILEPATH = "filePath";
     private static final String LOG_TAG = "FridgeList";
+    String mCurrentPhotoPath;
+    boolean imageDrawn = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        loadUserPreferences();
     }
 
-    /** Called when the user taps the Send button */
-    public void sendMessage(View view) {
-        Intent intent = new Intent(this, DisplayMessageActivity.class);
-        EditText editText = (EditText) findViewById(R.id.editText);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        if (!imageDrawn) {
+            displayCurrentImage();
+            imageDrawn = true;
+        }
+    }
+
+    private void loadUserPreferences() {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        if (sharedPref.contains(PREF_FILEPATH)) {
+            mCurrentPhotoPath = sharedPref.getString(PREF_FILEPATH, null);
+            Log.d(LOG_TAG, "Got sharedPref "+mCurrentPhotoPath);
+        } else {
+            Log.d(LOG_TAG, "No saved sharedPref");
+        }
     }
 
     public void takePicture(View view) {
@@ -78,8 +91,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    String mCurrentPhotoPath;
-
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -99,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            setPic();
+            displayCurrentImage();
             if (data == null) {
                 Log.e(LOG_TAG, "Null intent data!");
                 return;
@@ -114,8 +125,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setPic() {
+    private void displayCurrentImage() {
+        if (mCurrentPhotoPath == null || mCurrentPhotoPath.isEmpty())
+            return;
+
         ImageView mImageView = findViewById(R.id.imageView);
+        if (mImageView == null)
+            return;
+
         // Get the dimensions of the View
         int targetW = mImageView.getWidth();
         int targetH = mImageView.getHeight();
@@ -141,6 +158,10 @@ public class MainActivity extends AppCompatActivity {
         Bitmap rotatedBitmap = Bitmap.createBitmap(sourceBitmap, 0, 0, sourceBitmap.getWidth(), sourceBitmap.getHeight(), matrix, true);
 
         mImageView.setImageBitmap(rotatedBitmap);
+
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        boolean res = sharedPref.edit().putString(PREF_FILEPATH, mCurrentPhotoPath).commit();
+        Log.d(LOG_TAG, "Wrote sharedPref "+mCurrentPhotoPath+", result "+res);
     }
 
 }
