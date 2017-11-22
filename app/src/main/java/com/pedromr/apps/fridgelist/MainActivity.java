@@ -15,12 +15,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import android.content.pm.PackageManager;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
@@ -45,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
             displayCurrentImage();
             imageDrawn = true;
         }
+
+        DoodleCanvas canvas = new DoodleCanvas(this, null);
+        addContentView(canvas, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     private void loadUserPreferences() {
@@ -113,19 +119,13 @@ public class MainActivity extends AppCompatActivity {
             displayCurrentImage();
             if (data == null) {
                 Log.e(LOG_TAG, "Null intent data!");
-                return;
             }
-//            Bundle extras = data.getExtras();
-//            Bitmap imageBitmap = (Bitmap) extras.get("data");
-//            Uri photoURI = (Uri)extras.get(MediaStore.EXTRA_OUTPUT);
-//            Log.d(LOG_TAG, "File URI: "+photoURI );
-
-//            ImageView mImageView = findViewById(R.id.imageView);
-//            mImageView.setImageBitmap(imageBitmap);
         }
     }
 
     private void displayCurrentImage() {
+        PackageManager pm = getPackageManager();
+
         if (mCurrentPhotoPath == null || mCurrentPhotoPath.isEmpty())
             return;
 
