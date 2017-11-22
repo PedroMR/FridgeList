@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">FridgeList</string>
-    <string name="edit_message">Enter a message</string>
-    <string name="button_send">Send</string>
+    <string name="app_name">Fridge List</string>
+    <string name="action_settings">Settings</string>
 </resources>

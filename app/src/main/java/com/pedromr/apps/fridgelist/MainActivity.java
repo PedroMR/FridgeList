@@ -13,7 +13,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -37,6 +39,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         loadUserPreferences();
+        Toolbar myToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(myToolbar);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -48,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
             imageDrawn = true;
         }
 
-        DoodleCanvas canvas = new DoodleCanvas(this, null);
-        addContentView(canvas, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+//        DoodleCanvas canvas = new DoodleCanvas(this, null);
+//        addContentView(canvas, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+//                ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     private void loadUserPreferences() {
