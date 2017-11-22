@@ -29,7 +29,7 @@
         </activity>
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.pedromr.android.fileprovider"
+            android:authorities="com.pedromr.apps.fridgelist"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

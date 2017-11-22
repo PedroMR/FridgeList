@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -58,10 +59,6 @@ public class MainActivity extends AppCompatActivity {
             displayCurrentImage();
             imageDrawn = true;
         }
-
-//        DoodleCanvas canvas = new DoodleCanvas(this, null);
-//        addContentView(canvas, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-//                ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     private void loadUserPreferences() {
@@ -71,6 +68,19 @@ public class MainActivity extends AppCompatActivity {
             Log.d(LOG_TAG, "Got sharedPref "+mCurrentPhotoPath);
         } else {
             Log.d(LOG_TAG, "No saved sharedPref");
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.action_picture:
+                takePicture(null);
+                return true;
+//            case R.id.action_settings:
+//                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -95,11 +105,13 @@ public class MainActivity extends AppCompatActivity {
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
+                Log.e(LOG_TAG, "Error creating image file", ex);
+                return;
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.pedromr.android.fileprovider",
+                        "com.pedromr.apps.fridgelist",
                         photoFile);
                 Log.d(LOG_TAG, "photoURI: "+photoURI);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
