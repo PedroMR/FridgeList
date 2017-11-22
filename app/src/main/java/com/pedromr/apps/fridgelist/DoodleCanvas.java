@@ -54,4 +54,8 @@ public class DoodleCanvas extends View {
 
         return true;
     }
+
+    public void clear() {
+        mPath.reset();
+    }
 }

@@ -1,5 +1,6 @@
 package com.pedromr.apps.fridgelist;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,9 +8,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,12 +31,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import android.content.pm.PackageManager;
 
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     private static final String PREF_FILEPATH = "filePath";
     private static final String LOG_TAG = "FridgeList";
+    public static final int REQUEST_CAMERA_CODE = 10001;
     String mCurrentPhotoPath;
     boolean imageDrawn = false;
+    DoodleCanvas doodleCanvas;
 
 
     @Override
@@ -42,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         loadUserPreferences();
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
+        doodleCanvas = findViewById(R.id.doodle);
     }
 
     @Override
@@ -55,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
 
-        if (!imageDrawn) {
+        if (!imageDrawn && hasFocus) {
             displayCurrentImage();
             imageDrawn = true;
         }
@@ -85,13 +93,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void takePicture(View view) {
-//        if (checkSelfPermission(Manifest.permission.CAMERA)
-//                != PackageManager.PERMISSION_GRANTED) {
-//
-//            requestPermissions(new String[]{Manifest.permission.CAMERA},
-//                    MY_REQUEST_CODE);
-//        }
+        if (checkSelfPermission(Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(new String[]{Manifest.permission.CAMERA},
+                    REQUEST_CAMERA_CODE);
+            return; // once the request is granted we'll take the picture
+        }
         dispatchTakePictureIntent();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CAMERA_CODE:
+                takePicture(null);
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     static final int REQUEST_TAKE_PHOTO = 1;
@@ -140,10 +160,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             displayCurrentImage();
-            if (data == null) {
-                Log.e(LOG_TAG, "Null intent data!");
-            }
+            clearDoodleCanvas();
         }
+    }
+
+    private void clearDoodleCanvas() {
+        doodleCanvas.clear();
     }
 
     private void displayCurrentImage() {
