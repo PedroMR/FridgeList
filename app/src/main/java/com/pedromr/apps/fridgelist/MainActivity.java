@@ -35,6 +35,7 @@ import android.content.pm.PackageManager;
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     private static final String PREF_FILEPATH = "filePath";
+    private static final String PREF_DOODLES = "doodle";
     private static final String LOG_TAG = "FridgeList";
     public static final int REQUEST_CAMERA_CODE = 10001;
     String mCurrentPhotoPath;
@@ -46,10 +47,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        loadUserPreferences();
+        doodleCanvas = findViewById(R.id.doodle);
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
-        doodleCanvas = findViewById(R.id.doodle);
+
+        loadUserPreferences();
     }
 
     @Override
@@ -77,6 +79,12 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d(LOG_TAG, "No saved sharedPref");
         }
+
+        if (sharedPref.contains(PREF_DOODLES)) {
+            String doodleJSON = sharedPref.getString(PREF_DOODLES, null);
+            Log.d(LOG_TAG, "got doodle JSON "+doodleJSON);
+            doodleCanvas.loadJSON(doodleJSON);
+        }
     }
 
     @Override
@@ -85,8 +93,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_picture:
                 takePicture(null);
                 return true;
-//            case R.id.action_settings:
-//                return true;
+            case R.id.action_settings:
+                saveDoodle();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -209,4 +218,10 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "Wrote sharedPref "+mCurrentPhotoPath+", result "+res);
     }
 
+    public void saveDoodle() {
+        String jsonData = doodleCanvas.saveAsJson();
+        Log.d(LOG_TAG, "Saving data: "+jsonData);
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        boolean res = sharedPref.edit().putString(PREF_DOODLES, jsonData).commit();
+    }
 }
