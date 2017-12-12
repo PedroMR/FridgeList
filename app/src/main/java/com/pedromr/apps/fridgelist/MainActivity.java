@@ -96,9 +96,22 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_settings:
                 saveDoodle();
                 return true;
+            case R.id.action_undo:
+                undoDoodle();
+                return true;
+            case R.id.action_clear:
+                clearDoodleCanvas();
+                return true;
+            case R.id.action_erase:
+                doodleCanvas.setEraseMode(true);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void undoDoodle() {
+        doodleCanvas.undo();
     }
 
     public void takePicture(View view) {
@@ -211,7 +224,8 @@ public class MainActivity extends AppCompatActivity {
         matrix.postRotate(90);
         Bitmap rotatedBitmap = Bitmap.createBitmap(sourceBitmap, 0, 0, sourceBitmap.getWidth(), sourceBitmap.getHeight(), matrix, true);
 
-        mImageView.setImageBitmap(rotatedBitmap);
+//        mImageView.setImageBitmap(rotatedBitmap);
+        doodleCanvas.setBitmap(rotatedBitmap);
 
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         boolean res = sharedPref.edit().putString(PREF_FILEPATH, mCurrentPhotoPath).commit();

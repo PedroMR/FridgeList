@@ -1,7 +1,14 @@
 package com.pedromr.apps.fridgelist;
 
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.PointF;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -24,6 +31,19 @@ public class DoodleCanvas extends View {
     private ArrayList<String> mLines;
     private ArrayList<PointF> mCurrentLine;
 
+    private Bitmap backgroundImage;
+
+    public void setBitmap(Bitmap bitmap) {
+        backgroundImage = bitmap;
+    }
+
+    enum Mode {
+        Draw,
+        Erase
+    };
+
+    Mode mCurrentMode;
+
     public DoodleCanvas(Context context, AttributeSet attrs) {
         super(context, attrs);
         mLines = new ArrayList<String>();
@@ -35,11 +55,15 @@ public class DoodleCanvas extends View {
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(10);
         mPath = new Path();
+        mCurrentMode = Mode.Draw;
     }
 
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (backgroundImage != null) {
+//            canvas.setBitmap(backgroundImage);
+        }
         canvas.drawPath(mPath, mPaint);
         super.onDraw(canvas);
     }
@@ -63,13 +87,13 @@ public class DoodleCanvas extends View {
                 break;
 
             case MotionEvent.ACTION_UP:
-                String line = "draw";
+                String line = mCurrentMode == Mode.Draw ? "draw" : "erase";
                 for (PointF point: mCurrentLine) {
                     line += "|" + point.x + "," +point.y;
                 }
                 mLines.add(line);
                 Log.d(LOG_TAG, "Up adding line "+line);
-                Log.d(LOG_TAG, "new array: "+mLines.toString());
+//                mPaint.
                 //TODO signal this was modified to request save
                 break;
         }
@@ -80,6 +104,7 @@ public class DoodleCanvas extends View {
     public void clear() {
         mPath.reset();
         mLines.clear();
+        invalidate();
     }
 
     public String saveAsJson() {
@@ -110,5 +135,24 @@ public class DoodleCanvas extends View {
                 else mPath.lineTo(x, y);
             }
         }
+    }
+
+    public void undo() {
+        if (!canUndo()) return;
+
+        mLines.remove(mLines.size()-1);
+        repathLines();
+        invalidate();
+    }
+
+    public boolean canUndo() {
+        return mLines.size() > 0;
+    }
+
+    public void setEraseMode(boolean eraseMode) {
+        if (eraseMode)
+            mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        else
+            mPaint.setXfermode(null);
     }
 }
