@@ -24,6 +24,7 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/action_erase"
+        android:checkable="true"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="@string/action_erase"
         app:showAsAction="ifRoom" />

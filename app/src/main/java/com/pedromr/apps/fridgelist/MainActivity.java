@@ -4,35 +4,33 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import android.content.pm.PackageManager;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DoodleCanvas.DrawingChanged {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     private static final String PREF_FILEPATH = "filePath";
     private static final String PREF_DOODLES = "doodle";
@@ -48,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         doodleCanvas = findViewById(R.id.doodle);
+        doodleCanvas.OnDrawingChanged().registerObserver(this);
         Toolbar myToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(myToolbar);
 
@@ -103,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 clearDoodleCanvas();
                 return true;
             case R.id.action_erase:
-                doodleCanvas.setEraseMode(true);
+                doodleCanvas.toggleEraseMode();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -237,5 +236,10 @@ public class MainActivity extends AppCompatActivity {
         Log.d(LOG_TAG, "Saving data: "+jsonData);
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         boolean res = sharedPref.edit().putString(PREF_DOODLES, jsonData).commit();
+    }
+
+    @Override
+    public void OnDrawingChanged(DoodleCanvas observable) {
+        saveDoodle();
     }
 }
