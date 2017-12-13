@@ -2,7 +2,6 @@ package com.pedromr.apps.fridgelist;
 
 import android.content.Context;
 import android.database.Observable;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -10,7 +9,6 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.os.ResultReceiver;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -20,7 +18,6 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Observer;
 
 /**
  * Created by pedro on 11/22/17.
@@ -41,29 +38,29 @@ public class DoodleCanvas extends View {
         return mDrawingChanged;
     }
 
+    public Mode getCurrentMode() {
+        return mCurrentMode;
+    }
+
     public interface DrawingChanged {
-        void OnDrawingChanged(DoodleCanvas observable);
+        void onDrawingChanged(DoodleCanvas observable);
     }
 
     private class NotifyDrawingChanged extends Observable<DrawingChanged> {
         void notifyDrawingChanged(DoodleCanvas parentCanvas) {
             for(DrawingChanged observer : mObservers)
-                observer.OnDrawingChanged(parentCanvas);
+                observer.onDrawingChanged(parentCanvas);
         }
     }
 
     private NotifyDrawingChanged mDrawingChanged;
-
-    public void setBitmap(Bitmap bitmap) {
-        backgroundImage = bitmap;
-    }
 
     enum Mode {
         DRAW,
         ERASE
     }
 
-    Mode mCurrentMode;
+    private Mode mCurrentMode;
 
     public DoodleCanvas(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -161,6 +158,7 @@ public class DoodleCanvas extends View {
     }
 
     private void repathLines() {
+        Mode previousMode = mCurrentMode;
         mCurrentPath.reset();
         mCurrentPaint.reset();
         mPaths.clear();
@@ -188,6 +186,9 @@ public class DoodleCanvas extends View {
             }
             addCurrentStroke();
         }
+
+        mCurrentMode = previousMode;
+        setDrawingMode();
     }
 
     private void addCurrentStroke() {
@@ -204,6 +205,8 @@ public class DoodleCanvas extends View {
         mLines.remove(mLines.size()-1);
         repathLines();
         invalidate();
+
+        notifyDrawingModified();
     }
 
     public boolean canUndo() {

@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,7 +22,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 
 import java.io.File;
@@ -30,7 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
-public class MainActivity extends AppCompatActivity implements DoodleCanvas.DrawingChanged {
+public class ListDoodleActivity extends AppCompatActivity implements DoodleCanvas.DrawingChanged {
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     private static final String PREF_FILEPATH = "filePath";
     private static final String PREF_DOODLES = "doodle";
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements DoodleCanvas.Draw
         setContentView(R.layout.activity_main);
         doodleCanvas = findViewById(R.id.doodle);
         doodleCanvas.OnDrawingChanged().registerObserver(this);
-        Toolbar myToolbar = findViewById(R.id.toolbar);
+        Toolbar myToolbar = findViewById(R.id.toolbar_top);
         setSupportActionBar(myToolbar);
 
         loadUserPreferences();
@@ -58,6 +58,25 @@ public class MainActivity extends AppCompatActivity implements DoodleCanvas.Draw
         getMenuInflater().inflate(R.menu.toolbar, menu);
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem undo = menu.findItem(R.id.action_undo);
+        boolean enableUndo = doodleCanvas.canUndo();
+        setMenuItemEnabled(undo, enableUndo);
+//        undo.setVisible(enableUndo);
+
+        MenuItem eraser = menu.findItem(R.id.action_erase);
+        eraser.setChecked(doodleCanvas.getCurrentMode() == DoodleCanvas.Mode.ERASE);
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private static void setMenuItemEnabled(MenuItem menuItem, boolean enable) {
+        menuItem.setEnabled(enable);
+        Drawable icon = menuItem.getIcon();
+        if (icon != null) icon.setAlpha(enable ? 255 : 64);
     }
 
     @Override
@@ -90,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements DoodleCanvas.Draw
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.action_picture:
-                takePicture(null);
+                takePicture();
                 return true;
             case R.id.action_settings:
                 saveDoodle();
@@ -113,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements DoodleCanvas.Draw
         doodleCanvas.undo();
     }
 
-    public void takePicture(View view) {
+    public void takePicture() {
         if (checkSelfPermission(Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
 
@@ -128,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements DoodleCanvas.Draw
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_CAMERA_CODE:
-                takePicture(null);
+                takePicture();
                 break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -141,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements DoodleCanvas.Draw
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
-            File photoFile = null;
+            File photoFile;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
@@ -163,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements DoodleCanvas.Draw
 
     private File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String timeStamp = SimpleDateFormat.getDateTimeInstance().format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
@@ -216,15 +235,13 @@ public class MainActivity extends AppCompatActivity implements DoodleCanvas.Draw
         // Decode the image file into a Bitmap sized to fill the View
         bmOptions.inJustDecodeBounds = false;
         bmOptions.inSampleSize = scaleFactor;
-        bmOptions.inPurgeable = true;
 
         Bitmap sourceBitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
         Matrix matrix = new Matrix();
         matrix.postRotate(90);
         Bitmap rotatedBitmap = Bitmap.createBitmap(sourceBitmap, 0, 0, sourceBitmap.getWidth(), sourceBitmap.getHeight(), matrix, true);
 
-//        mImageView.setImageBitmap(rotatedBitmap);
-        doodleCanvas.setBitmap(rotatedBitmap);
+        mImageView.setImageBitmap(rotatedBitmap);
 
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         boolean res = sharedPref.edit().putString(PREF_FILEPATH, mCurrentPhotoPath).commit();
@@ -239,7 +256,8 @@ public class MainActivity extends AppCompatActivity implements DoodleCanvas.Draw
     }
 
     @Override
-    public void OnDrawingChanged(DoodleCanvas observable) {
+    public void onDrawingChanged(DoodleCanvas doodle) {
         saveDoodle();
+        invalidateOptionsMenu();
     }
 }

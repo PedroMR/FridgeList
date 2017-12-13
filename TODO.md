@@ -1,22 +1,30 @@
-= TODO
+# TODO
 
-
-* Eraser mode
-* Transparent view
+* Icon for app 
 * Multiple doodle pages w/ pictures
 ** Photo adds one
 ** new button to delete
-* Settings page
+* Improve UI
+** Grab free button icons
+** more buttons should be visible? Buttons at bottom bar?  
+* Analytics
+* Transparent (fade-out) view via button
+* About/Settings page
 ** Change color
 ** Link to my website/paypal/venmo?
 * Handle camera resolutions (keep aspect ratio)
 ** Ideally: allow moving the picture/cropping/etc
-* Analytics
-* Share
+* Versioning persisted data
+* SHIP IT
+** Add to store
+** Post online about it
+* Share button
 
 
-= DONE
--* Save the doodles (automatically)-
--* Clear-
--* Undo-
+# DONE
+
+* ~~Save the doodles (automatically)~~
+* ~~Clear~~
+* ~~Undo~~
+* ~~Eraser mode~~
 
