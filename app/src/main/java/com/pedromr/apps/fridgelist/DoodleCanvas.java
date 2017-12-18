@@ -33,6 +33,9 @@ public class DoodleCanvas extends View {
 
     private ArrayList<String> mLines;
     private ArrayList<PointF> mCurrentLine;
+    private PointF lastTouch;
+    private int eraserRadius = 50;
+    private Paint eraserFeedbackPaint;
 
     public Observable<DrawingChanged> OnDrawingChanged() {
         return mDrawingChanged;
@@ -76,6 +79,11 @@ public class DoodleCanvas extends View {
         mPaths = new LinkedList<>();
 
         mDrawingChanged = new NotifyDrawingChanged();
+
+        eraserFeedbackPaint = new Paint();
+        eraserFeedbackPaint.setColor(Color.BLACK);
+        eraserFeedbackPaint.setStyle(Paint.Style.STROKE);
+        eraserFeedbackPaint.setStrokeWidth(5);
     }
 
     private void setDrawingMode() {
@@ -88,7 +96,7 @@ public class DoodleCanvas extends View {
         if (mCurrentMode == Mode.DRAW) {
             mCurrentPaint.setXfermode(null);
         } else {
-            mCurrentPaint.setStrokeWidth(30);
+            mCurrentPaint.setStrokeWidth(eraserRadius*2);
             mCurrentPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         }
     }
@@ -102,24 +110,30 @@ public class DoodleCanvas extends View {
             canvas.drawPath(path, paint);
         }
         canvas.drawPath(mCurrentPath, mCurrentPaint);
+
+        if (isInEraseMode() && !mCurrentPath.isEmpty()) {
+            canvas.drawCircle(lastTouch.x, lastTouch.y, eraserRadius, eraserFeedbackPaint);
+        }
+
         super.onDraw(canvas);
     }
 
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        lastTouch = new PointF(event.getX(), event.getY());
 
         switch (event.getAction()){
 
             case MotionEvent.ACTION_DOWN:
                 mCurrentLine = new ArrayList<>();
-                mCurrentLine.add(new PointF(event.getX(), event.getY()));
+                mCurrentLine.add(lastTouch);
                 mCurrentPath.moveTo(event.getX(), event.getY());
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 mCurrentPath.lineTo(event.getX(), event.getY());
-                mCurrentLine.add(new PointF(event.getX(), event.getY()));
+                mCurrentLine.add(lastTouch);
                 invalidate();
                 break;
 
@@ -145,6 +159,8 @@ public class DoodleCanvas extends View {
     public void clear() {
         mCurrentPath.reset();
         mLines.clear();
+        mCurrentMode = Mode.DRAW;
+        repathLines();
         invalidate();
     }
 
@@ -177,7 +193,6 @@ public class DoodleCanvas extends View {
                     continue;
                 }
                 String[] pair = tokens[i].split(",");
-                Log.d(LOG_TAG, "lin 0 pair "+pair.toString());
                 boolean first = i == 1;
                 float x = Float.parseFloat(pair[0]);
                 float y = Float.parseFloat(pair[1]);
@@ -230,5 +245,9 @@ public class DoodleCanvas extends View {
             mCurrentMode = Mode.ERASE;
 
         setDrawingMode();
+    }
+
+    public boolean isInEraseMode() {
+        return mCurrentMode == Mode.ERASE;
     }
 }

@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -47,15 +48,26 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
         setContentView(R.layout.activity_main);
         doodleCanvas = findViewById(R.id.doodle);
         doodleCanvas.OnDrawingChanged().registerObserver(this);
-        Toolbar myToolbar = findViewById(R.id.toolbar_top);
-        setSupportActionBar(myToolbar);
+        Toolbar topToolbar = findViewById(R.id.toolbar_top);
+        setSupportActionBar(topToolbar);
+
+        Toolbar bottomToolbar = findViewById(R.id.toolbar_bottom);
+        final ListDoodleActivity parent = this;
+        bottomToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                                                     @Override
+                                                     public boolean onMenuItemClick(MenuItem item) {
+                                                         return parent.onOptionsItemSelected(item);
+                                                     }
+                                                 });
+        bottomToolbar.inflateMenu(R.menu.bottom_toolbar);
+        refreshBottomToolbar();
 
         loadUserPreferences();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar, menu);
+        getMenuInflater().inflate(R.menu.top_toolbar, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -68,12 +80,13 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
 //        undo.setVisible(enableUndo);
 
         MenuItem eraser = menu.findItem(R.id.action_erase);
-        eraser.setChecked(doodleCanvas.getCurrentMode() == DoodleCanvas.Mode.ERASE);
+        if (eraser != null) eraser.setChecked(doodleCanvas.getCurrentMode() == DoodleCanvas.Mode.ERASE);
 
         return super.onPrepareOptionsMenu(menu);
     }
 
     private static void setMenuItemEnabled(MenuItem menuItem, boolean enable) {
+        if (menuItem == null) return;
         menuItem.setEnabled(enable);
         Drawable icon = menuItem.getIcon();
         if (icon != null) icon.setAlpha(enable ? 255 : 64);
@@ -86,6 +99,7 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
         if (!imageDrawn && hasFocus) {
             displayCurrentImage();
             imageDrawn = true;
+            refreshBottomToolbar();
         }
     }
 
@@ -122,14 +136,27 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
                 return true;
             case R.id.action_erase:
                 doodleCanvas.toggleEraseMode();
+                refreshBottomToolbar();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    private void refreshBottomToolbar() {
+        Toolbar bottomToolbar = findViewById(R.id.toolbar_bottom);
+        Menu bottomMenu = bottomToolbar.getMenu();
+
+        MenuItem eraseItem = bottomMenu.findItem(R.id.action_erase);
+        if (eraseItem != null) eraseItem.getIcon().setColorFilter( doodleCanvas.isInEraseMode() ? 0xFF333333 : 0x0, PorterDuff.Mode.OVERLAY);
+
+        MenuItem undoItem = bottomMenu.findItem(R.id.action_undo);
+        if (undoItem != null) undoItem.setVisible(doodleCanvas.canUndo());
+    }
+
     private void undoDoodle() {
         doodleCanvas.undo();
+        refreshBottomToolbar();
     }
 
     public void takePicture() {
@@ -259,5 +286,6 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
     public void onDrawingChanged(DoodleCanvas doodle) {
         saveDoodle();
         invalidateOptionsMenu();
+        refreshBottomToolbar();
     }
 }

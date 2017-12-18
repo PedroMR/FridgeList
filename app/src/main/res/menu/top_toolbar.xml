@@ -13,19 +13,8 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_undo"
-        android:icon="@android:drawable/ic_menu_revert"
-        android:title="@string/action_undo"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/action_clear"
         android:icon="@android:drawable/ic_delete"
         android:title="@string/action_clear"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_erase"
-        android:checkable="true"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
-        android:title="@string/action_erase"
-        app:showAsAction="ifRoom" />
 </menu>

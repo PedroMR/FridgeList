@@ -1,4 +1,4 @@
-# FridgeList
+# Pic List
 
 Simple app for grocery or other lists.
 
