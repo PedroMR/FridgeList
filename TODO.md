@@ -19,6 +19,8 @@
 * Transparent (fade-out) view via button
 * Settings page
     * Change color
+    * Change size
+* Add HIGHLIGHT mode (low alpha)
 * Handle camera resolutions (keep aspect ratio)
     * Ideally: allow moving the picture/cropping/etc
 * Share button

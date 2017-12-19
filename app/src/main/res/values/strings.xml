@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Pic List</string>
-    <string name="action_settings">About</string>
+    <string name="action_about">About</string>
     <string name="action_undo">Undo</string>
     <string name="action_picture">Take Picture</string>
     <string name="action_erase">Erase</string>
@@ -8,5 +8,5 @@
     <string name="about"><![CDATA[
 <h3>PicList by Pedro M. Rabinovitch</h3><br/>Icons made by <a href="http://www.icomoon.io">icomoon</a> from <a href="flaticon.com">flaticon.com</a>.
     ]]></string>
-    <string name="title_activity_about">AboutActivity</string>
+    <string name="title_activity_about">About this app</string>
 </resources>

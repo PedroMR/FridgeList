@@ -3,12 +3,19 @@ package com.pedromr.apps.fridgelist;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.TextView;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class AboutActivity extends AppCompatActivity {
 
@@ -17,17 +24,37 @@ public class AboutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
-        TextView tv = findViewById(R.id.about);
-        tv.setText(fromHtml(getString(R.string.about)));
+        Toolbar toolbar = findViewById(R.id.toolbar_about);
+        setSupportActionBar(toolbar);
+        // Get a support ActionBar corresponding to this toolbar
+        ActionBar ab = getSupportActionBar();
+        // Enable the Up button
+        ab.setDisplayHomeAsUpEnabled(true);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        WebView webView = findViewById(R.id.about);
+        webView.loadUrl("file:///android_asset/about.html");
+//
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
+    }
+
+    private Spanned fromHtml(InputStream inputStream) throws IOException {
+        StringBuilder buf=new StringBuilder();
+        BufferedReader in=
+                new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+        String str;
+
+        while ((str=in.readLine()) != null) {
+            buf.append(str);
+        }
+
+        return fromHtml(buf.toString());
     }
 
     @SuppressWarnings("deprecation")
