@@ -4,8 +4,7 @@
 * Analytics
 * About page
     * Contact info for feedback
-    * Link to my website/paypal/venmo
-    * Include credits for used thing (eg icons)
+    * Link to my paypal/venmo
 * SHIP IT
     * Add to store
     * Post online about it
@@ -35,4 +34,7 @@
 * ~~Feedback on where it's erasing~~
 * ~~more buttons should be visible? Buttons at bottom bar?~~  
 * ~~Versioning persisted data~~
+* ~~Include credits for used thing (eg icons)~~
+* ~~Add confirmation dialog to CLEAR ALL~~
+* ~~fix CLEAR ALL so it saves~~
 

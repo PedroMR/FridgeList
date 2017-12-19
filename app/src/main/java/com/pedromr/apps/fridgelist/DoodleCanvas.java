@@ -169,6 +169,7 @@ public class DoodleCanvas extends View {
         mCurrentMode = Mode.DRAW;
         repathLines();
         invalidate();
+        notifyDrawingModified();
     }
 
     public String saveAsJson() {
@@ -217,8 +218,8 @@ public class DoodleCanvas extends View {
                 }
                 String[] pair = tokens[i].split(",");
                 boolean first = i == 1;
-                int x = Integer.parseInt(pair[0]);
-                int y = Integer.parseInt(pair[1]);
+                int x = (int)Float.parseFloat(pair[0]);
+                int y = (int)Float.parseFloat(pair[1]);
                 if (first) mCurrentPath.moveTo(x, y);
                 else mCurrentPath.lineTo(x, y);
             }

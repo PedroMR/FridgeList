@@ -9,4 +9,9 @@
 <h3>PicList by Pedro M. Rabinovitch</h3><br/>Icons made by <a href="http://www.icomoon.io">icomoon</a> from <a href="flaticon.com">flaticon.com</a>.
     ]]></string>
     <string name="title_activity_about">About this app</string>
+    <string name="msg_eraserMode">Eraser mode</string>
+    <string name="msg_drawMode">Draw mode</string>
+    <string name="msg_undone">Undone</string>
+    <string name="dialog_clear_all">Clear All</string>
+    <string name="dialog_clear_all_message">Do you want to clear all drawings on this picture?</string>
 </resources>
