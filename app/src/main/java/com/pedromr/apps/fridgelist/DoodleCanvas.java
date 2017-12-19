@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -26,16 +27,22 @@ import java.util.LinkedList;
 public class DoodleCanvas extends View {
 
     private static final String LOG_TAG = "DOODLE";
+    private static final int MY_CAPSULE_VERSION = 1;
     private Paint mCurrentPaint;
     private Path mCurrentPath;
     private LinkedList<Path> mPaths;
     private LinkedList<Paint> mPaints;
 
     private ArrayList<String> mLines;
-    private ArrayList<PointF> mCurrentLine;
-    private PointF lastTouch;
+    private ArrayList<Point> mCurrentLine;
+    private Point lastTouch;
     private int eraserRadius = 50;
     private Paint eraserFeedbackPaint;
+
+    final class Capsule {
+        int version;
+        ArrayList<String> mLines;
+    }
 
     public Observable<DrawingChanged> OnDrawingChanged() {
         return mDrawingChanged;
@@ -121,7 +128,7 @@ public class DoodleCanvas extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        lastTouch = new PointF(event.getX(), event.getY());
+        lastTouch = new Point((int)event.getX(), (int)event.getY());
 
         switch (event.getAction()){
 
@@ -139,7 +146,7 @@ public class DoodleCanvas extends View {
 
             case MotionEvent.ACTION_UP:
                 StringBuilder line = new StringBuilder(mCurrentMode == Mode.DRAW ? "draw" : "erase");
-                for (PointF point: mCurrentLine) {
+                for (Point point: mCurrentLine) {
                     line.append("|").append(point.x).append(",").append(point.y);
                 }
                 mLines.add(line.toString());
@@ -165,11 +172,27 @@ public class DoodleCanvas extends View {
     }
 
     public String saveAsJson() {
-        return new Gson().toJson(mLines);
+        Gson gson = new Gson();
+        Capsule capsule = new Capsule();
+        capsule.version = MY_CAPSULE_VERSION;
+        capsule.mLines = mLines;
+
+        return gson.toJson(capsule);
     }
 
     public void loadJSON(String jsonData) {
-        mLines = new Gson().fromJson(jsonData, mLines.getClass());
+        Gson gson = new Gson();
+
+        try {
+            Capsule capsule = gson.fromJson(jsonData, Capsule.class);
+            if (capsule.version > MY_CAPSULE_VERSION) {
+                Log.w(LOG_TAG, "Saved data version "+capsule.version+"; expected "+MY_CAPSULE_VERSION);
+            }
+            mLines = capsule.mLines;
+        } catch(Exception e) {
+            Log.w(LOG_TAG, e);
+            mLines = gson.fromJson(jsonData, mLines.getClass());
+        }
         repathLines();
     }
 
@@ -194,8 +217,8 @@ public class DoodleCanvas extends View {
                 }
                 String[] pair = tokens[i].split(",");
                 boolean first = i == 1;
-                float x = Float.parseFloat(pair[0]);
-                float y = Float.parseFloat(pair[1]);
+                int x = Integer.parseInt(pair[0]);
+                int y = Integer.parseInt(pair[1]);
                 if (first) mCurrentPath.moveTo(x, y);
                 else mCurrentPath.lineTo(x, y);
             }

@@ -125,8 +125,8 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
             case R.id.action_picture:
                 takePicture();
                 return true;
-            case R.id.action_settings:
-                saveDoodle();
+            case R.id.action_about:
+                showAbout();
                 return true;
             case R.id.action_undo:
                 undoDoodle();
@@ -141,6 +141,11 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void showAbout() {
+        Intent intent = new Intent(this, AboutActivity.class);
+        startActivity(intent);
     }
 
     private void refreshBottomToolbar() {

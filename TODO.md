@@ -1,7 +1,6 @@
 # TODO
 
 * Icon for app 
-* Versioning persisted data
 * Analytics
 * About page
     * Contact info for feedback
@@ -33,4 +32,5 @@
 * ~~Eraser mode~~
 * ~~Feedback on where it's erasing~~
 * ~~more buttons should be visible? Buttons at bottom bar?~~  
+* ~~Versioning persisted data~~
 
