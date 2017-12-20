@@ -10,7 +10,7 @@
     <item
         android:id="@+id/action_erase"
         android:checkable="true"
-        android:icon="@drawable/ic_eraser"
+        android:icon="@drawable/eraser"
         android:title="@string/action_erase"
         app:showAsAction="ifRoom" />
 </menu>

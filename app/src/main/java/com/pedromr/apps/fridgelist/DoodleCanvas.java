@@ -98,7 +98,7 @@ public class DoodleCanvas extends View {
         mCurrentPaint.setStyle(Paint.Style.STROKE);
         mCurrentPaint.setStrokeJoin(Paint.Join.ROUND);
         mCurrentPaint.setStrokeCap(Paint.Cap.ROUND);
-        mCurrentPaint.setStrokeWidth(10);
+        mCurrentPaint.setStrokeWidth(16);
         mCurrentPaint.setAlpha(255);
         if (mCurrentMode == Mode.DRAW) {
             mCurrentPaint.setXfermode(null);
