@@ -1,4 +1,4 @@
-package com.pedromr.apps.fridgelist;
+package com.pedromr.apps.piclist;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.pedromr.apps.fridgelist", appContext.getPackageName());
+        assertEquals("com.pedromr.apps.piclist", appContext.getPackageName());
     }
 }

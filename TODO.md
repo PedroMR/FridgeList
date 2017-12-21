@@ -1,11 +1,10 @@
 # TODO
 
-* Icon for app 
-* Analytics
 * About page
     * Contact info for feedback
     * Link to my paypal/venmo
 * SHIP IT
+    * Screenshots
     * Add to store
     * Post online about it
     
@@ -14,7 +13,7 @@
     * new button to delete
 * Button to add from gallery
 * Improve UI
-    * Grab free button icons
+    * Grab more free button icons
 * Transparent (fade-out) view via button
 * Settings page
     * Change color
@@ -37,4 +36,6 @@
 * ~~Include credits for used thing (eg icons)~~
 * ~~Add confirmation dialog to CLEAR ALL~~
 * ~~fix CLEAR ALL so it saves~~
+* ~~Icon for app~~ 
+* ~~Analytics~~
 

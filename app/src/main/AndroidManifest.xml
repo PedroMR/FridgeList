@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.pedromr.apps.fridgelist">
+    package="com.pedromr.apps.piclist">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission
@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ListDoodleActivity"
+            android:name="com.pedromr.apps.piclist.ListDoodleActivity"
             android:screenOrientation="portrait"
             >
             <intent-filter>
@@ -32,7 +32,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.pedromr.apps.fridgelist"
+            android:authorities="com.pedromr.apps.piclist"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -41,13 +41,13 @@
         </provider>
 
         <activity
-            android:name=".AboutActivity"
+            android:name="com.pedromr.apps.piclist.AboutActivity"
             android:label="@string/title_activity_about"
-            android:parentActivityName=".ListDoodleActivity"
+            android:parentActivityName="com.pedromr.apps.piclist.ListDoodleActivity"
             android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.pedromr.apps.fridgelist.ListDoodleActivity" />
+                android:value="com.pedromr.apps.piclist.ListDoodleActivity" />
         </activity>
     </application>
 

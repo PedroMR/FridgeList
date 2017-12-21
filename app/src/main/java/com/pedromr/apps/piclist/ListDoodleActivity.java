@@ -1,4 +1,4 @@
-package com.pedromr.apps.fridgelist;
+package com.pedromr.apps.piclist;
 
 import android.Manifest;
 import android.content.Context;
@@ -23,33 +23,44 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.Size;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class ListDoodleActivity extends AppCompatActivity implements DoodleCanvas.DrawingChanged {
-    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     private static final String PREF_FILEPATH = "filePath";
     private static final String PREF_DOODLES = "doodle";
     private static final String LOG_TAG = "FridgeList";
     public static final int REQUEST_CAMERA_CODE = 10001;
+    private static final String PREF_UUID = "uniqueID";
     String mCurrentPhotoPath;
     boolean imageDrawn = false;
     DoodleCanvas doodleCanvas;
+    private AnalyticsTracker mAnalyticsTracker;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAnalyticsTracker = new FirebaseAnalyticsTracker(FirebaseAnalytics.getInstance(this));
+//        String uniqueID = loadUserID();
+//        mAnalyticsTracker.setUniqueID(uniqueID);
+        mAnalyticsTracker.logEvent(AnalyticsTracker.Event.APP_OPEN, null);
+
         setContentView(R.layout.activity_main);
         doodleCanvas = findViewById(R.id.doodle);
+        doodleCanvas.SetAnalyticsTracker(mAnalyticsTracker);
         doodleCanvas.OnDrawingChanged().registerObserver(this);
         Toolbar topToolbar = findViewById(R.id.toolbar_top);
         setSupportActionBar(topToolbar);
@@ -106,6 +117,15 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
         }
     }
 
+    private String loadUserID() {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        if (!sharedPref.contains(PREF_UUID)) {
+            String uniqueID = UUID.randomUUID().toString();
+            return uniqueID;
+        }
+        return sharedPref.getString(PREF_UUID, null);
+    }
+
     private void loadUserPreferences() {
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         if (sharedPref.contains(PREF_FILEPATH)) {
@@ -126,19 +146,24 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.action_picture:
+                mAnalyticsTracker.logEvent(AnalyticsTracker.Event.BTN_PICTURE, null);
                 takePicture();
                 return true;
             case R.id.action_about:
+                mAnalyticsTracker.logEvent(AnalyticsTracker.Event.BTN_ABOUT, null);
                 showAbout();
                 return true;
             case R.id.action_undo:
+                mAnalyticsTracker.logEvent(AnalyticsTracker.Event.BTN_UNDO, null);
                 undoDoodle();
                 displayToast(getString(R.string.msg_undone));
                 return true;
             case R.id.action_clearall:
+                mAnalyticsTracker.logEvent(AnalyticsTracker.Event.BTN_CLEARALL, null);
                 onTappedClearAll();
                 return true;
             case R.id.action_erase:
+                mAnalyticsTracker.logEvent(doodleCanvas.isInEraseMode() ? AnalyticsTracker.Event.BTN_MODE_DRAW : AnalyticsTracker.Event.BTN_MODE_ERASE, null);
                 doodleCanvas.toggleEraseMode();
                 String modeMessage = doodleCanvas.isInEraseMode() ? getString(R.string.msg_eraserMode) : getString(R.string.msg_drawMode) ;
                 displayToast(modeMessage);
@@ -165,9 +190,13 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
                 .setIconAttribute(android.R.attr.alertDialogIcon)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int whichButton) {
+                        mAnalyticsTracker.logEvent(AnalyticsTracker.Event.DLG_CLEARALL_CONFIRM, null);
                         clearDoodleCanvas();
                     }})
-                .setNegativeButton(android.R.string.no, null).show();
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        mAnalyticsTracker.logEvent(AnalyticsTracker.Event.DLG_CLEARALL_CANCEL, null);
+                    }}).show();
     }
 
     private void showAbout() {
@@ -194,7 +223,7 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
     public void takePicture() {
         if (checkSelfPermission(Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-
+            mAnalyticsTracker.logEvent(AnalyticsTracker.Event.DLG_CAMERA_PERMISSION, null);
             requestPermissions(new String[]{Manifest.permission.CAMERA},
                     REQUEST_CAMERA_CODE);
             return; // once the request is granted we'll take the picture
@@ -206,6 +235,7 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_CAMERA_CODE:
+                mAnalyticsTracker.logEvent(AnalyticsTracker.Event.DLG_CAMERA_PERMISSION_ACCEPTED, null);
                 takePicture();
                 break;
             default:
@@ -230,7 +260,7 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.pedromr.apps.fridgelist",
+                        "com.pedromr.apps.piclist",
                         photoFile);
                 Log.d(LOG_TAG, "photoURI: "+photoURI);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -287,6 +317,14 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
         BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
         int photoH = bmOptions.outWidth;
         int photoW = bmOptions.outHeight;
+
+        Bundle parameters = new Bundle();
+        Size targetSize = new Size(targetW, targetH);
+        Size photoSize= new Size(photoW, photoH);
+
+        parameters.putCharSequence("targetSize", targetSize.toString());
+        parameters.putCharSequence("photoSize", photoSize.toString());
+        mAnalyticsTracker.logEvent(AnalyticsTracker.Event.ACTION_PICTURE_TAKEN, parameters);
 
         // Determine how much to scale down the image
         int scaleFactor = Math.min(photoW/targetW, photoH/targetH);

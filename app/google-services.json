@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "309107142985",
+    "firebase_url": "https://piclist-87d11.firebaseio.com",
+    "project_id": "piclist-87d11",
+    "storage_bucket": "piclist-87d11.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:309107142985:android:414b281128500797",
+        "android_client_info": {
+          "package_name": "com.pedromr.apps.piclist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "309107142985-63djr7d9cafsijuc2it0ehbeo6hueh9s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pedromr.apps.piclist",
+            "certificate_hash": "ddae2c6d8c0738921efd3600042611aed917803a"
+          }
+        },
+        {
+          "client_id": "309107142985-7pnq9scdji9ajr3pptsl3632b97d41te.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEwhOVO9gEeo9tRqtFUnuCtZUIqB4o9fE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "309107142985-7pnq9scdji9ajr3pptsl3632b97d41te.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

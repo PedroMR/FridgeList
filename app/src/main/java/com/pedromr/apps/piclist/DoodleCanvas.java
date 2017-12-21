@@ -1,4 +1,4 @@
-package com.pedromr.apps.fridgelist;
+package com.pedromr.apps.piclist;
 
 import android.content.Context;
 import android.database.Observable;
@@ -7,9 +7,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -38,6 +38,11 @@ public class DoodleCanvas extends View {
     private Point lastTouch;
     private int eraserRadius = 50;
     private Paint eraserFeedbackPaint;
+    private AnalyticsTracker mAnalyticsTracker;
+
+    public void SetAnalyticsTracker(AnalyticsTracker mAnalyticsTracker) {
+        this.mAnalyticsTracker = mAnalyticsTracker;
+    }
 
     final class Capsule {
         int version;
@@ -118,7 +123,7 @@ public class DoodleCanvas extends View {
         }
         canvas.drawPath(mCurrentPath, mCurrentPaint);
 
-        if (isInEraseMode() && !mCurrentPath.isEmpty()) {
+        if (isInEraseMode() && lastTouch != null) {
             canvas.drawCircle(lastTouch.x, lastTouch.y, eraserRadius, eraserFeedbackPaint);
         }
 
@@ -145,13 +150,18 @@ public class DoodleCanvas extends View {
                 break;
 
             case MotionEvent.ACTION_UP:
+                Bundle parameters = new Bundle();
                 StringBuilder line = new StringBuilder(mCurrentMode == Mode.DRAW ? "draw" : "erase");
                 for (Point point: mCurrentLine) {
                     line.append("|").append(point.x).append(",").append(point.y);
                 }
+                parameters.putCharSequence("line", line);
+                mAnalyticsTracker.logEvent(mCurrentMode == Mode.DRAW ? AnalyticsTracker.Event.ACTION_DRAW : AnalyticsTracker.Event.ACTION_ERASE, parameters);
                 mLines.add(line.toString());
+                lastTouch = null;
                 addCurrentStroke();
                 Log.d(LOG_TAG, "Up adding line "+line);
+                invalidate();
                 notifyDrawingModified();
                 break;
         }

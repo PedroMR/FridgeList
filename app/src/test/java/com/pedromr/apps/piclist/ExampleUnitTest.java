@@ -1,4 +1,4 @@
-package com.pedromr.apps.fridgelist;
+package com.pedromr.apps.piclist;
 
 import org.junit.Test;
 
