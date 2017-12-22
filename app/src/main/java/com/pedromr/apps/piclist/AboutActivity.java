@@ -27,6 +27,10 @@ public class AboutActivity extends AppCompatActivity {
         // Enable the Up button
         ab.setDisplayHomeAsUpEnabled(true);
 
+        String title = getString(R.string.title_activity_about);
+        title = title+" "+ BuildConfig.VERSION_NAME;
+        ab.setTitle(title);
+
         WebView webView = findViewById(R.id.about);
         webView.loadUrl("file:///android_asset/about.html");
 //
