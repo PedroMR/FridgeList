@@ -5,9 +5,6 @@
     <string name="action_picture">Take Picture</string>
     <string name="action_erase">Erase</string>
     <string name="action_clear">Clear All</string>
-    <string name="about"><![CDATA[
-<h3>PicList by Pedro M. Rabinovitch</h3><br/>Icons made by <a href="http://www.icomoon.io">icomoon</a> from <a href="flaticon.com">flaticon.com</a>.
-    ]]></string>
     <string name="title_activity_about">About PicList</string>
     <string name="msg_eraserMode">Eraser mode</string>
     <string name="msg_drawMode">Draw mode</string>

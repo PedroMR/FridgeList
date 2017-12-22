@@ -46,11 +46,11 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
     private static final String PREF_FILEPATH = "filePath";
     private static final String PREF_DOODLES = "doodle";
     private static final String LOG_TAG = "FridgeList";
-    public static final int REQUEST_CAMERA_CODE = 10001;
+    private static final int REQUEST_CAMERA_CODE = 10001;
     private static final String PREF_UUID = "uniqueID";
-    String mCurrentPhotoPath;
-    boolean imageDrawn = false;
-    DoodleCanvas doodleCanvas;
+    private String mCurrentPhotoPath;
+    private boolean imageDrawn = false;
+    private DoodleCanvas doodleCanvas;
     private AnalyticsTracker mAnalyticsTracker;
 
 
@@ -125,6 +125,7 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         if (!sharedPref.contains(PREF_UUID)) {
             String uniqueID = UUID.randomUUID().toString();
+            sharedPref.edit().putString(PREF_UUID, uniqueID).apply();
             return uniqueID;
         }
         return sharedPref.getString(PREF_UUID, null);
@@ -151,7 +152,7 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
         switch(item.getItemId()) {
             case R.id.action_picture:
                 mAnalyticsTracker.logEvent(AnalyticsTracker.Event.BTN_PICTURE, null);
-                takePicture();
+                takePicture(true);
                 return true;
             case R.id.action_about:
                 mAnalyticsTracker.logEvent(AnalyticsTracker.Event.BTN_ABOUT, null);
@@ -224,9 +225,11 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
         refreshBottomToolbar();
     }
 
-    public void takePicture() {
+    private void takePicture(boolean askForPermission) {
         if (checkSelfPermission(Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
+            if (!askForPermission) return;
+
             mAnalyticsTracker.logEvent(AnalyticsTracker.Event.DLG_CAMERA_PERMISSION, null);
             requestPermissions(new String[]{Manifest.permission.CAMERA},
                     REQUEST_CAMERA_CODE);
@@ -240,14 +243,14 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
         switch (requestCode) {
             case REQUEST_CAMERA_CODE:
                 mAnalyticsTracker.logEvent(AnalyticsTracker.Event.DLG_CAMERA_PERMISSION_ACCEPTED, null);
-                takePicture();
+                takePicture(false);
                 break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
-    static final int REQUEST_TAKE_PHOTO = 1;
+    private static final int REQUEST_TAKE_PHOTO = 1;
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -308,12 +311,18 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
             return;
 
         ImageView mImageView = findViewById(R.id.imageView);
-        if (mImageView == null)
+        if (mImageView == null) {
+            Log.e(LOG_TAG, "Target imageView is null!");
             return;
+        }
 
         // Get the dimensions of the View
         int targetW = mImageView.getWidth();
         int targetH = mImageView.getHeight();
+        if (targetH * targetW == 0) {
+            Log.e(LOG_TAG, "Target imageView has size 0!");
+            return;
+        }
 
         // Get the dimensions of the bitmap
         BitmapFactory.Options bmOptions = new BitmapFactory.Options();
@@ -349,7 +358,7 @@ public class ListDoodleActivity extends AppCompatActivity implements DoodleCanva
         Log.d(LOG_TAG, "Wrote sharedPref "+mCurrentPhotoPath+", result "+res);
     }
 
-    public void saveDoodle() {
+    private void saveDoodle() {
         String jsonData = doodleCanvas.saveAsJson();
         Log.d(LOG_TAG, "Saving data: "+jsonData);
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
